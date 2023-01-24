@@ -2,69 +2,78 @@ const express = require('express');
 const Agent = require("../models/agent");
 const bcrypt = require("bcrypt")
 const router = express.Router();
-
+const jwt = require("jsonwebtoken");
+const Intervention = require("../models/intervention")
 // POST
 // ---- Route pour la création d'un produit ----
 router.post('/api/agent/register', (req, res, next) => {
+    bcrypt.hash(req.body.password, 10)
+        .then(hash => {
+            const agent = new Agent(
+                {
+                    grade: req.body.grade,
+                    numAgent: req.body.numAgent,
+                    password: hash
+                }
+            );
+            agent.save()
+                .then(() => res.status(201).json({numAgent: req.body.numAgent}))
+                .catch(error => res.status(400).json({error}));
 
-    const product = new Agent(
-        req.query.numAgent,
-        bcrypt.hash(req.query.password,10),
-        req.query.grade
-    );
-
-    product.save()
-        .then(product => res.status(201).json( { product }  ))
-        .catch(error => res.status(400).json({ error } ))
-
+        });
 });
-router.post('/api/agent/register', (req, res, next) => {
+router.post('/api/agent/login', (req, res, next) => {
 
-    Product.findOne({
+    Agent.findOne({
         _numAgent: req.params.numAgent,
         _password: bcrypt.compare(req.params.password, 10),
         _grade: req.params.grade
-    })
+    }).then(() => res.status(200).json({
+        numAgent: req.body.numAgent,
+        token: jwt.sign(
+            {numAgent: req.body.numAgent},
+            'AIZEDFHAIHFUE',
+            {expireIn: '24h'}
+        )
+    }))
+        .catch(() => res.status(401).json({message: "erreur dans la paire mdp/login"}))
 
 });
 
-// GET
-// ---- Route pour récupérer tous les produits ----
-router.get('/', (req, res, next) => {
+router.post('/api/intervention', (req, res, next) => {
+    const intervention = new Intervention(
+        {
+            ...req.body
+        }
+    );
+    intervention.save()
+        .then(() => res.status(201).json({message: "intervention enregistrée"}))
+        .catch(error => res.status(400).json({error}));
+});
 
-    Product.find()
-        .then(products => res.status(200).json({ products }))
-        .catch(error => res.status(404).json({ error } ))
+
+router.get('/api/intervention', (req, res, next) => {
+
+    Intervention.find({_numAgent: req.body.numAgent})
+        .then(products => res.status(200).json({products}))
+        .catch(error => res.status(404).json({error}))
 
 });
 
-// GET
-// ---- Route pour récupérer un produit précis ----
-router.get('/:id', (req, res, next) => {
+router.get('/api/intervention/all', (req, res, next) => {
 
-    Product.findOne({_id: req.params.id})
-        .then(product => res.status(200).json({ product } ))
-        .catch(error => res.status(404).json({ error } ))
+    Intervention.find()
+        .then(products => res.status(200).json({products}))
+        .catch(error => res.status(404).json({error}))
 
 });
 
-// PUT
-// ---- Route pour modifier un produit précis ----
-router.put('/:id', (req, res, next) => {
+router.delete('/api/intervention/:id', (req, res, next) => {
 
-    Product.updateOne({_id: req.params.id}, {...req.body , _id: req.params.id} )
-        .then(() => res.status(200).json({ message : "Modified !" }))
-        .catch(error => res.status(400).json({ error } ))
-
-});
-
-// DELETE
-// ---- Route pour supprimer un produit précis ----
-router.delete('/:id', (req, res, next) => {
-
-    Product.deleteOne({_id: req.params.id})
-        .then(() => res.status(200).json({ message: "Deleted !" }))
-        .catch(error => res.status(400).json({ error } ))
+    Product.deleteOne({_id: req.params.id,
+                        _numAgent: req.body.numAgent})
+        .then(() => res.status(200).json({message: "Intervention supprimée"}))
+        .catch(error => res.status(400).json({error}))
 
 });
 
