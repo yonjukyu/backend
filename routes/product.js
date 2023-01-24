@@ -68,13 +68,4 @@ router.get('/api/intervention/all', (req, res, next) => {
 
 });
 
-router.delete('/api/intervention/:id', (req, res, next) => {
-
-    Product.deleteOne({_id: req.params.id,
-                        _numAgent: req.body.numAgent})
-        .then(() => res.status(200).json({message: "Intervention supprimée"}))
-        .catch(error => res.status(400).json({error}))
-
-});
-
 module.exports = router;
