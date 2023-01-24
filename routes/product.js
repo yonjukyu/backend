@@ -1,19 +1,30 @@
 const express = require('express');
-const Product = require("../models/product");
-
+const Agent = require("../models/agent");
+const bcrypt = require("bcrypt")
 const router = express.Router();
 
 // POST
 // ---- Route pour la création d'un produit ----
-router.post('/', (req, res, next) => {
+router.post('/api/agent/register', (req, res, next) => {
 
-    const product = new Product({
-        ...req.body
-    });
+    const product = new Agent(
+        req.query.numAgent,
+        bcrypt.hash(req.query.password,10),
+        req.query.grade
+    );
 
     product.save()
-        .then( product => res.status(201).json( { product }  ))
+        .then(product => res.status(201).json( { product }  ))
         .catch(error => res.status(400).json({ error } ))
+
+});
+router.post('/api/agent/register', (req, res, next) => {
+
+    Product.findOne({
+        _numAgent: req.params.numAgent,
+        _password: bcrypt.compare(req.params.password, 10),
+        _grade: req.params.grade
+    })
 
 });
 

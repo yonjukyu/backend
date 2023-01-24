@@ -3,7 +3,7 @@ const app = express();
 const mongoose = require('mongoose');
 const productsRoutes = require('./routes/product');
 
-mongoose.connect('mongodb+srv://ExtraUser:test@cluster0.ppkcizk.mongodb.net/?retryWrites=true&w=majority',
+mongoose.connect('mongodb+srv://admin:test@cluster0.aku3npu.mongodb.net/?retryWrites=true&w=majority',
     {
         useNewUrlParser: true,
         useUnifiedTopology: true
