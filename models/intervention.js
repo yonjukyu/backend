@@ -9,4 +9,4 @@ const interventionSchema = mongoose.Schema({
 
 });
 
-module.exports = mongoose.model('Agent', interventionSchema);
+module.exports = mongoose.model('Intervention', interventionSchema);

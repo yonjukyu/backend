@@ -40,6 +40,13 @@ router.post('/api/agent/login', (req, res, next) => {
 
 });
 
+router.put('/api/agent/update', (req, res, next) => {
+
+    Agent.updateOne({_numAgent: req.body.numAgent}, {...req.body} )
+        .then(() => res.status(200).json({ message : "Agent modifié !" }))
+        .catch(error => res.status(400).json({ message: "Pas autorisé" } ))
+
+});
 router.post('/api/intervention', (req, res, next) => {
     const intervention = new Intervention(
         {
@@ -68,4 +75,11 @@ router.get('/api/intervention/all', (req, res, next) => {
 
 });
 
+router.delete('/api/intervention/:id', (req, res, next) => {
+
+    Intervention.deleteOne({_id: req.params.id, numAgent: req.body.numAgent})
+        .then(() => res.status(200).json({ message: "Intervention suprimée !" }))
+        .catch(error => res.status(400).json({ message: "Ce n'est pas votre intervention" } ))
+
+});
 module.exports = router;
